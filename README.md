@@ -16,7 +16,9 @@ pip install deproto
 from deproto import Protobuf
 
 # Example protobuf string from Google Maps
-pb_string = '!3m1!1e3!4m12!3m11!1s0x4795cd1c65280cb9:0xad3b34d7340adc02!5m3!1s2024-12-21!4m1!1i2!8m2!3d49.167174!4d7.22149!9m1!1b1'
+pb_string = ('!3m1!1e3!4m12!3m11!1s0x4795cd1c65280cb9:0xad3b34d7340adc02'
+             '!5m3!1s2024-12-21!4m1!1i2!8m2!3d49.167174!4d7.22149!9m1!1b1'
+             '!16s%2Fg%2F1tfr93pp')
 
 # Create decoder instance
 decoder = Protobuf(pb_string)
@@ -28,7 +30,7 @@ cluster = decoder.decode()
 decoder.print_tree()
 
 # Make changes to values
-cluster[0][0].change('2024-12-21')
+cluster[1][0][1][0].change("2025-01-01")
 
 # Encode back to protobuf format
 encoded = decoder.encode()
