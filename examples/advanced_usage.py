@@ -9,7 +9,7 @@ def demonstrate_cluster_manipulation():
     print("----------------------------")
 
     # Create a new cluster
-    cluster = Cluster(1, 2)
+    cluster = Cluster(1)
 
     # Add nodes
     cluster.append(Node(1, "value1", StringType()))
