@@ -40,7 +40,7 @@ class Protobuf:
     def to_cluster(self, nodes: List[Tuple[str, str, str]]) -> Cluster:
         """Convert nodes list to a cluster structure."""
         _id, kind, value = nodes.pop(0)
-        cluster = Cluster(int(_id), int(value))
+        cluster = Cluster(int(_id))
         needed_nodes = [
             nodes.pop(0)
             for _ in range(int(value))
@@ -59,13 +59,14 @@ class Protobuf:
     def to_node(self, node: Tuple[str, str, str]) -> Node:
         """Convert node tuple to Node object."""
         _id, kind, value = node
-        return Node(int(_id), value, DataTypeFactory.get_type(kind))
+        type = DataTypeFactory.get_type(kind)
+        return Node(int(_id), type.decode(value), type)
 
     def decode(self) -> Cluster:
         """Decode the protobuf string into a tree structure."""
         self.split()
         nodes = self.nodes.copy()
-        self.root = Cluster(1, len(nodes))
+        self.root = Cluster(1)
 
         while nodes:
             node = nodes[0]
