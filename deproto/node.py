@@ -1,16 +1,24 @@
-from typing import Any
+from __future__ import annotations
+from typing import Any, Optional, Union
 from deproto.types import BaseType
 
 
 class Node:
     """Represents a single node in the protobuf structure."""
 
-    def __init__(self, index: int, value: Any, dtype: BaseType):
+    def __init__(
+        self,
+        index: int,
+        value: Any,
+        dtype: BaseType,
+        parent: Optional['Cluster'] = None
+    ):
         self.index: int = index - 1
-        self.value: Any = dtype.decode(value)
-        self.value_raw: str = value
+        self.value: Any = value
+        self.value_raw: str = dtype.encode(value)[1]
         self.dtype: BaseType = dtype
         self.type: str = dtype.type
+        self.parent: Optional[Union[Node, 'Cluster']] = parent
 
     def change(self, value: Any) -> None:
         """Change the node's value.
@@ -38,3 +46,7 @@ class Node:
 
     def __repr__(self):
         return f"Node({self.index}, {self.type}, {self.value})"
+
+    def set_parent(self, parent: Union[Node, 'Cluster']) -> None:
+        """Set the parent cluster for this node."""
+        self.parent = parent
