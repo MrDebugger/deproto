@@ -64,3 +64,7 @@ docs/api/
 
 # Local development settings
 local_settings.py
+
+# Keep asset directories
+!assets/icons/.gitkeep
+!assets/images/.gitkeep
