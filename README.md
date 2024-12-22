@@ -151,12 +151,57 @@ root = Cluster(1, [
 
 The `print_tree()` method provides a clear visualization of the protobuf structure:
 
+For example, given this protobuf string:
+
 ```
-1m3
-├── 1s2024
-├── 2i42
-└── 3stest
+!1m7!1shello!6m4!4m1!1e1!5m1!1e1!2m2!1i42!2sworld!5m2!1sgreeting!7e1!8m5!1b1!2b1!3b1!5b1!7b1!11m4!1e1!2e2!3sen!4sGB!13m1!1e1
 ```
+
+The tree visualization shows:
+
+```
+1m7                      # Root cluster: index=1, total=7 clusters/nodes
+├── 1shello             # String node: "hello"
+├── 6m4                 # Cluster: index=6, total=4
+│   ├── 4m1            # Nested cluster: index=4, total=1
+│   │   └── 1e1       # Enum node: value=1
+│   └── 5m1           # Another cluster: index=5, total=1
+│       └── 1e1      # Enum node: value=1
+├── 2m2                 # Cluster: index=2, total=2
+│   ├── 1i42          # Int node: value=42 (answer to everything)
+│   └── 2sworld       # String node: "world"
+├── 5m2                 # Cluster: index=5, total=2
+│   ├── 1sgreeting    # String node: "greeting"
+│   └── 7e1           # Enum node: value=1
+├── 8m5                 # Cluster: index=8, total=5
+│   ├── 1b1           # Bool node: true
+│   ├── 2b1           # Bool node: true
+│   ├── 3b1           # Bool node: true
+│   ├── 5b1           # Bool node: true
+│   └── 7b1           # Bool node: true
+├── 11m4                # Cluster: index=11, total=4
+│   ├── 1e1           # Enum node: value=1
+│   ├── 2e2           # Enum node: value=2
+│   ├── 3sen          # String node: "en"
+│   └── 4sGB          # String node: "GB"
+└── 13m1                # Cluster: index=13, total=1
+    └── 1e1           # Enum node: value=1
+```
+
+Understanding the numbers:
+- First number is the index (1-based)
+- `m` indicates a cluster, followed by total count
+- Letters indicate type: `s`=string, `i`=int, `e`=enum, `b`=bool
+
+Total count includes:
+- Direct children nodes
+- Nested clusters
+- Children of nested clusters
+
+For example, in `6m4`:
+- Has 2 direct children (4m1 clusters)
+- Each 4m1 cluster has 1 child (1e1 nodes)
+- Total = 2 clusters + 2 nodes = 4
 
 ## Supported Data Types
 
