@@ -1,7 +1,7 @@
 # deproto
 
 <div align="center">
-  <img src="assets/icons/DEPROTO.gif" alt="deproto logo" width="200"/>
+  <img src="https://raw.githubusercontent.com/MrDebugger/deproto/main/assets/icons/DEPROTO.gif" alt="deproto logo" width="200"/>
 </div>
 
 <h4 align="center">A Python package for Google Maps protobuf format</h4>
@@ -268,4 +268,4 @@ Ijaz Ur Rahim ([ijazurrahim.com](https://ijazurrahim.com) | [@MrDebugger](https:
 
 ## Current Version
 
-**0.2.0** - See [CHANGELOG.md](CHANGELOG.md) for version history and details.
+**0.2.1** - See [CHANGELOG.md](CHANGELOG.md) for version history and details.
