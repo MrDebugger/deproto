@@ -45,7 +45,7 @@ class Node:
         )
 
     def __repr__(self):
-        return f"Node({self.index}, {self.type}, {self.value})"
+        return f"Node({self.index + 1}, {self.type}, {self.value})"
 
     def set_parent(self, parent: Union[Node, 'Cluster']) -> None:
         """Set the parent cluster for this node."""
