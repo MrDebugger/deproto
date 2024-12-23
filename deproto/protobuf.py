@@ -88,22 +88,50 @@ class Protobuf:
             return ""
         return "".join(node.encode() for node in self.root.nodes)
 
-    def print_tree(self, node=None, prefix="") -> None:
-        """Print visual representation of the tree."""
+    def _tree_lines(self, node: Cluster, prefix: str) -> List[str]:
+        """Helper method to generate tree lines recursively.
+
+        :param node: Cluster node to process
+        :param prefix: Current indentation prefix
+        :return: List of formatted tree lines
+        """
+        result = []
+        for i, child in enumerate(node.nodes):
+            is_last = i == len(node.nodes) - 1
+            connector = "└── " if is_last else "├── "
+            line = f"{prefix}{connector}{child.index + 1}"
+
+            if isinstance(child, Cluster):
+                line += f"m{child.total}"
+                result.append(line)
+                new_prefix = prefix + ("    " if is_last else "│   ")
+                result.extend(self._tree_lines(child, new_prefix))
+            else:
+                line += f"{child.type}{child.value_raw}"
+                result.append(line)
+
+        return result
+
+    def print_tree(self, node=None, prefix="", stdout=True) -> Optional[str]:
+        """Print or return a visual representation of the tree.
+
+        :param node: Starting node (defaults to root)
+        :param prefix: Prefix for tree indentation
+        :param stdout: If True, prints the tree to stdout
+        :return: String representation of the tree if stdout is False,
+            None otherwise
+        """
+        result = []
         if node is None:
             node = self.root
-            prefix = ""
-            print(f"{node.index + 1}m{node.total}")
+            result.append(f"{node.index + 1}m{node.total}")
 
         if isinstance(node, Cluster):
-            for i, child in enumerate(node.nodes):
-                is_last = i == len(node.nodes) - 1
-                connector = "└── " if is_last else "├── "
-                print(f"{prefix}{connector}{child.index + 1}", end="")
+            result.extend(self._tree_lines(node, prefix))
 
-                if isinstance(child, Cluster):
-                    print(f"m{child.total}")
-                    new_prefix = prefix + ("    " if is_last else "│   ")
-                    self.print_tree(child, new_prefix)
-                else:
-                    print(f"{child.type}{child.value_raw}")
+        tree_str = "\n".join(result)
+
+        if stdout:
+            print(tree_str)
+        else:
+            return tree_str
