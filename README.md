@@ -154,13 +154,13 @@ The `print_tree()` method provides a clear visualization of the protobuf structu
 For example, given this protobuf string:
 
 ```
-!1m7!1shello!6m4!4m1!1e1!5m1!1e1!2m2!1i42!2sworld!5m2!1sgreeting!7e1!8m5!1b1!2b1!3b1!5b1!7b1!11m4!1e1!2e2!3sen!4sGB!13m1!1e1
+!1shello!6m4!4m1!1e1!5m1!1e1!2m2!1i42!2sworld!5m2!1sgreeting!7e1!8m5!1b1!2b1!3b1!5b1!7b1!11m4!1e1!2e2!3sen!4sGB!13m1!1e1
 ```
 
 The tree visualization shows:
 
 ```
-1m7                      # Root cluster: index=1, total=7 clusters/nodes
+1m25                      # Root cluster: index=1, total=25 clusters/nodes
 ├── 1shello             # String node: "hello"
 ├── 6m4                 # Cluster: index=6, total=4
 │   ├── 4m1            # Nested cluster: index=4, total=1
