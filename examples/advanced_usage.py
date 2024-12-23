@@ -59,7 +59,7 @@ def demonstrate_state_management():
     decoder.print_tree()
 
     # Make some changes
-    cluster[0][0].change("2025")
+    cluster[1][1].change("2025")
     print("\nModified structure:")
     decoder.print_tree()
 

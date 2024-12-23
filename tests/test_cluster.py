@@ -35,7 +35,7 @@ class TestCluster(unittest.TestCase):
         ])
         self.cluster.append(nested)
         self.assertEqual(nested.parent, self.cluster)
-        self.assertEqual(nested[0].parent, nested)
+        self.assertEqual(nested[1].parent, nested)
 
     def test_add_method_variations(self):
         # Test tuple format cluster[node]

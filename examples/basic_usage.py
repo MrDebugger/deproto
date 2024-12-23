@@ -18,7 +18,7 @@ def main():
     decoder.print_tree()
 
     # Make changes to values
-    cluster[1][0][1][0].change("2025-01-01")
+    cluster[4][3][5][1].change("2025-01-01")
 
     print("\nModified Tree Structure:")
     print("-----------------------")
