@@ -25,6 +25,8 @@ class BytesType(BaseType):
 
     @staticmethod
     def encode(value):
+        if isinstance(value, str):
+            value = value.encode('utf8')
         return 'B', urlsafe_b64encode(value).rstrip(b'=').decode('utf8')
 
 
@@ -167,9 +169,11 @@ class Base64StringType(BaseType):
 
     @staticmethod
     def encode(value):
+        if isinstance(value, str):
+            value = value.encode('utf8')
         return (
             'z',
-            urlsafe_b64encode(value.encode('utf8')).rstrip(b'=').decode('utf8')
+            urlsafe_b64encode(value).rstrip(b'=').decode('utf8')
         )
 
 
