@@ -13,7 +13,7 @@
   <a href="https://pypi.org/project/deproto/">
     <img src="https://img.shields.io/pypi/pyversions/deproto.svg" alt="Python versions"/>
   </a>
-  <a href="LICENSE">
+  <a href="https://github.com/MrDebugger/deproto/blob/main/LICENSE">
     <img src="https://img.shields.io/github/license/MrDebugger/deproto.svg" alt="License"/>
   </a>
   <a href="https://github.com/MrDebugger/deproto/stargazers">
@@ -31,12 +31,12 @@
 </p>
 
 <p align="center">
-  <a href="#features">Features</a> •
-  <a href="#installation">Installation</a> •
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#building-protobuf-structures">Documentation</a> •
-  <a href="#advanced-usage">Advanced</a> •
-  <a href="#testing">Testing</a>
+  <a href="https://github.com/MrDebugger/deproto#features">Features</a> •
+  <a href="https://github.com/MrDebugger/deproto#installation">Installation</a> •
+  <a href="https://github.com/MrDebugger/deproto#quick-start">Quick Start</a> •
+  <a href="https://github.com/MrDebugger/deproto#building-protobuf-structures">Documentation</a> •
+  <a href="https://github.com/MrDebugger/deproto#advanced-usage">Advanced</a> •
+  <a href="https://github.com/MrDebugger/deproto#testing">Testing</a>
 </p>
 
 A Python package for decoding, manipulating, and encoding Google Maps protobuf format strings. This library provides an intuitive way to work with protobuf structures commonly found in Google Maps URLs and data.
@@ -77,7 +77,7 @@ cluster = decoder.decode()
 decoder.print_tree()
 
 # Make changes to values
-cluster[0][0].change("2025")
+cluster[1][1].change("2025")
 
 # Encode back to protobuf format
 encoded = decoder.encode()
@@ -147,6 +147,67 @@ root = Cluster(1, [
 ])
 ```
 
+## Tree Operations
+
+### Finding and Replacing Nodes
+
+You can find and replace nodes in the tree structure:
+
+```python
+from deproto import Protobuf, Cluster, Node
+from deproto.types import StringType, IntType
+
+# Create a sample cluster
+cluster = Cluster(1, [
+    Node(1, "hello", StringType()),
+    Node(2, 42, IntType()),
+    Node(3, "world", StringType())
+])
+
+# Find a node by index
+node = cluster.find(2)  # Returns node with value 42
+
+# Replace a node
+new_node = Node(2, 100, IntType())
+old_node = cluster.replace(2, new_node)
+```
+
+### JSON Serialization
+
+The tree structure can be serialized into a simple list representation:
+
+```python
+from deproto import Protobuf, Cluster, Node
+from deproto.types import StringType, IntType
+
+# Create a simple structure
+cluster = Cluster(1, [
+    Node(1, "test", StringType()),
+    Node(2, 42, IntType())
+])
+
+# Convert to list format
+json_data = cluster.to_json()
+print(json_data)  # Output: ["test", 42]
+
+# Create a nested structure
+nested = Cluster(1, [
+    Node(1, "outer", StringType()),
+    Cluster(2, [
+        Node(1, "inner", StringType())
+    ])
+])
+
+# Nested structures maintain hierarchy
+nested_json = nested.to_json()
+print(nested_json)  # Output: ["outer", ["inner"]]
+```
+
+The `to_json()` method converts:
+- Simple nodes into their values
+- Clusters into lists of their children's values
+- Maintains the nested structure of the tree
+
 ## Tree Visualization
 
 The `print_tree()` method provides a clear visualization of the protobuf structure:
@@ -161,31 +222,31 @@ The tree visualization shows:
 
 ```
 1m25                      # Root cluster: index=1, total=25 clusters/nodes
-├── 1shello             # String node: "hello"
-├── 6m4                 # Cluster: index=6, total=4
-│   ├── 4m1            # Nested cluster: index=4, total=1
-│   │   └── 1e1       # Enum node: value=1
-│   └── 5m1           # Another cluster: index=5, total=1
-│       └── 1e1      # Enum node: value=1
-├── 2m2                 # Cluster: index=2, total=2
-│   ├── 1i42          # Int node: value=42 (answer to everything)
-│   └── 2sworld       # String node: "world"
-├── 5m2                 # Cluster: index=5, total=2
-│   ├── 1sgreeting    # String node: "greeting"
-│   └── 7e1           # Enum node: value=1
-├── 8m5                 # Cluster: index=8, total=5
-│   ├── 1b1           # Bool node: true
-│   ├── 2b1           # Bool node: true
-│   ├── 3b1           # Bool node: true
-│   ├── 5b1           # Bool node: true
-│   └── 7b1           # Bool node: true
-├── 11m4                # Cluster: index=11, total=4
-│   ├── 1e1           # Enum node: value=1
-│   ├── 2e2           # Enum node: value=2
-│   ├── 3sen          # String node: "en"
-│   └── 4sGB          # String node: "GB"
-└── 13m1                # Cluster: index=13, total=1
-    └── 1e1           # Enum node: value=1
+├── 1shello               # String node: "hello"
+├── 6m4                   # Cluster: index=6, total=4
+│   ├── 4m1               # Nested cluster: index=4, total=1
+│   │   └── 1e1           # Enum node: value=1
+│   └── 5m1               # Another cluster: index=5, total=1
+│       └── 1e1           # Enum node: value=1
+├── 2m2                   # Cluster: index=2, total=2
+│   ├── 1i42              # Int node: value=42 (answer to everything)
+│   └── 2sworld           # String node: "world"
+├── 5m2                   # Cluster: index=5, total=2
+│   ├── 1sgreeting        # String node: "greeting"
+│   └── 7e1               # Enum node: value=1
+├── 8m5                   # Cluster: index=8, total=5
+│   ├── 1b1               # Bool node: true
+│   ├── 2b1               # Bool node: true
+│   ├── 3b1               # Bool node: true
+│   ├── 5b1               # Bool node: true
+│   └── 7b1               # Bool node: true
+├── 11m4                  # Cluster: index=11, total=4
+│   ├── 1e1               # Enum node: value=1
+│   ├── 2e2               # Enum node: value=2
+│   ├── 3sen              # String node: "en"
+│   └── 4sGB              # String node: "GB"
+└── 13m1                  # Cluster: index=13, total=1
+    └── 1e1               # Enum node: value=1
 ```
 
 Understanding the numbers:
@@ -232,7 +293,7 @@ child = Cluster(2, [
 root.append(child)
 
 assert child.parent == root
-assert child[0].parent == child
+assert child[1].parent == child
 ```
 
 ### Automatic Total Management
@@ -260,7 +321,7 @@ root.add(3, [  # Creates nested clusters
         Node(1, 42, IntType())
     ])
 ])
-print(root.total)  # 8 (previous 4 + 1 for new cluster + 1 for Node("hello") 
+print(root.total)  # 8 (previous 4 + 1 for new cluster + 1 for Node("hello")
                    #    + 1 for inner Cluster + 1 for Node(42))
 
 # Removing a cluster removes its total contribution
@@ -305,7 +366,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/MrDebugger/deproto/blob/main/LICENSE) file for details.
 
 ## Author
 
@@ -313,4 +374,4 @@ Ijaz Ur Rahim ([ijazurrahim.com](https://ijazurrahim.com) | [@MrDebugger](https:
 
 ## Current Version
 
-**0.2.1** - See [CHANGELOG.md](CHANGELOG.md) for version history and details.
+**0.2.3** - See [CHANGELOG.md](https://github.com/MrDebugger/deproto/blob/main/CHANGELOG.md) for version history and details.

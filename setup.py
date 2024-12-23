@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="deproto",
-    version="0.2.1",
+    version="0.2.3",
     author="Ijaz Ur Rahim",
     author_email="ijazkhan095@gmail.com",
     description="A decoder for Google Maps protobuf format",
