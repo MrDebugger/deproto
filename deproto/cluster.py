@@ -28,17 +28,6 @@ class Cluster:
             for node in nodes:
                 self.append(node)
 
-    def set_parent(self, parent: Optional['Cluster']) -> None:
-        """Set the parent cluster for this cluster."""
-        self.parent = parent
-
-    def append(self, item: Union[Node, 'Cluster']) -> None:
-        """Append a node or cluster to this cluster."""
-        item.set_parent(self)
-        self.nodes.append(item)
-        amount = item.total + 1 if isinstance(item, Cluster) else 1
-        self._increment_total(amount)
-
     def _increment_total(self, amount: int = 1) -> None:
         """Increment total and propagate up to parent."""
         self.total += amount
@@ -50,6 +39,29 @@ class Cluster:
         self.total -= amount
         if self.parent:
             self.parent._decrement_total(amount)
+
+    def set_parent(self, parent: Optional['Cluster']) -> None:
+        """Set the parent cluster for this cluster."""
+        self.parent = parent
+
+    def append(self, item: Union[Node, 'Cluster']) -> None:
+        """Append a node or cluster to this cluster."""
+        item.set_parent(self)
+        self.nodes.append(item)
+        amount = item.total + 1 if isinstance(item, Cluster) else 1
+        self._increment_total(amount)
+
+    def find(self, index: int) -> Optional[Union[Node, 'Cluster']]:
+        """Find a node or cluster at a specific index.
+
+        :param index: Index of node to find (1-based)
+        :return: Node or Cluster at index
+        :raises: IndexError if index is not found
+        """
+        for node in self.nodes:
+            if node.index + 1 == index:
+                return node
+        raise IndexError(f"Index {index} not found in cluster")
 
     def insert(self, index: int, item: Union[Node, 'Cluster']) -> None:
         """Insert a node or cluster at a specific index position.
@@ -71,15 +83,14 @@ class Cluster:
         """Delete a node by its index.
 
         :param index: Index of node to delete (1-based)
-        :return: Deleted node or None if not found
+        :return: Deleted node
+        :raises: IndexError if index is not found
         """
-        for i, node in enumerate(self.nodes):
-            if node.index + 1 == index:
-                deleted = self.nodes.pop(i)
-                deleted.set_parent(None)
-                self._decrement_total()
-                return deleted
-        return None
+        node = self.find(index)
+        node.set_parent(None)
+        self.nodes.remove(node)
+        self._decrement_total()
+        return node
 
     def encode(self) -> str:
         """Encode the cluster back to protobuf format.
@@ -92,20 +103,48 @@ class Cluster:
             result += node.encode()
         return result
 
+    def replace(self, index: int, value: Union[Node, 'Cluster']):
+        node = self.delete(index)
+        self.insert(index, value)
+        return node
+
+    def at(self, index: int):
+        """Get a node at a specific index.
+
+        :param index: Index of node to get (0-based)
+        :return: Node at index
+        """
+        return self.nodes[index]
+
     def __len__(self):
         return len(self.nodes)
 
     def __getitem__(self, index):
-        return self.nodes[index]
+        """Get a node at a specific index.
+
+        :param index: Index of node to get (1-based)
+        :return: Node at index
+        """
+        return self.find(index)
 
     def __setitem__(self, index, value):
-        self.nodes[index] = value
+        """Set a node at a specific index.
+
+        :param index: Index of node to set (1-based)
+        :param value: New value for node
+        :return: Set node
+        """
+        node = self.find(index)
+        node.value = value
+        return node
 
     def __delitem__(self, index):
-        node = self.nodes[index]
-        node.set_parent(None)
-        del self.nodes[index]
-        self._decrement_total()
+        """Delete a node at a specific index.
+
+        :param index: Index of node to delete (1-based)
+        :return: Deleted node
+        """
+        return self.delete(index)
 
     def __contains__(self, item):
         return item in self.nodes
@@ -118,6 +157,20 @@ class Cluster:
             else:
                 node_reprs.append(repr(node))
         return f"Cluster([{', '.join(node_reprs)}])"
+
+    def to_json(self) -> list:
+        """Convert the cluster to a JSON-serializable dictionary.
+
+        :return: List representation of the cluster
+        :rtype: list
+        """
+        nodes = []
+        for node in self.nodes:
+            if isinstance(node, Cluster):
+                nodes.append(node.to_json())
+            else:
+                nodes.append(node.value)
+        return nodes
 
     def add(
         self,
