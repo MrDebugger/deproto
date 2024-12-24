@@ -51,17 +51,23 @@ class Cluster:
         amount = item.total + 1 if isinstance(item, Cluster) else 1
         self._increment_total(amount)
 
-    def find(self, index: int) -> Optional[Union[Node, 'Cluster']]:
+    def find(
+        self,
+        index: int,
+        _raise: bool = False
+    ) -> Optional[Union[Node, 'Cluster']]:
         """Find a node or cluster at a specific index.
 
         :param index: Index of node to find (1-based)
+        :param _raise: If True, raise IndexError if index is not found
         :return: Node or Cluster at index
-        :raises: IndexError if index is not found
         """
         for node in self.nodes:
             if node.index + 1 == index:
                 return node
-        raise IndexError(f"Index {index} not found in cluster")
+        if _raise:
+            raise IndexError(f"Index {index} not found in cluster")
+        return None
 
     def insert(self, index: int, item: Union[Node, 'Cluster']) -> None:
         """Insert a node or cluster at a specific index position.
@@ -86,7 +92,7 @@ class Cluster:
         :return: Deleted node
         :raises: IndexError if index is not found
         """
-        node = self.find(index)
+        node = self.find(index, _raise=True)
         node.set_parent(None)
         self.nodes.remove(node)
         self._decrement_total()
@@ -125,7 +131,7 @@ class Cluster:
         :param index: Index of node to get (1-based)
         :return: Node at index
         """
-        return self.find(index)
+        return self.find(index, _raise=True)
 
     def __setitem__(self, index, value):
         """Set a node at a specific index.
@@ -134,7 +140,7 @@ class Cluster:
         :param value: New value for node
         :return: Set node
         """
-        node = self.find(index)
+        node = self.find(index, _raise=True)
         node.value = value
         return node
 
