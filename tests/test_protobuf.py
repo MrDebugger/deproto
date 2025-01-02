@@ -1,4 +1,5 @@
 import unittest
+
 from deproto import Protobuf
 
 
@@ -31,5 +32,5 @@ class TestProtobuf(unittest.TestCase):
         self.assertEqual(self.decoder.root[1][1].value, "2024")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

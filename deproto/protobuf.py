@@ -1,7 +1,30 @@
+"""Protobuf module.
+
+This module provides the Protobuf class for decoding and encoding Google Maps
+protobuf format strings. The format consists of nodes and clusters arranged in
+a hierarchical structure.
+
+The protobuf format uses a simple encoding scheme:
+- Each node starts with '!' followed by an index number
+- A single character indicates the data type (e.g. 's' => string, 'f' => float)
+- The remaining characters contain the encoded value
+- Clusters are indicated by 'm' type and contain a count of nested nodes
+
+Example:
+    !1s5Hello!2f3.14!3m2!4b1!5sWorld
+
+Main Components:
+    - Protobuf: Main decoder/encoder class
+    - split(): Splits protobuf string into node tuples
+    - expand(): Expands node strings into components
+    - to_cluster(): Converts nodes to hierarchical cluster structure
+"""
+
 import re
-from typing import List, Tuple, Optional
-from deproto.node import Node
+from typing import List, Optional, Tuple
+
 from deproto.cluster import Cluster
+from deproto.node import Node
 from deproto.types import DataTypeFactory
 
 
@@ -21,34 +44,26 @@ class Protobuf:
 
     def split(self) -> None:
         """Split the protobuf string into node tuples."""
-        self.nodes = [
-            self.expand(node)
-            for node in self.pb_string.split('!')
-            if node
-        ]
+        pb_split = self.pb_string.split("!")
+        self.nodes = [self.expand(node) for node in pb_split if node]
         self.original_nodes = self.nodes.copy()
 
     def expand(self, node: str) -> Tuple[str, str, str]:
         """Expand a protobuf node string into components."""
-        matches = re.match(r'(\d+)([a-zA-Z])(.*)', node)
+        matches = re.match(r"(\d+)([a-zA-Z])(.*)", node)
         if not matches or len(matches.groups()) != 3:
-            raise ValueError(
-                f"Invalid protobuf-encoded string: {node}"
-            )
+            raise ValueError(f"Invalid protobuf-encoded string: {node}")
         return matches.groups()
 
     def to_cluster(self, nodes: List[Tuple[str, str, str]]) -> Cluster:
         """Convert nodes list to a cluster structure."""
         _id, kind, value = nodes.pop(0)
         cluster = Cluster(int(_id))
-        needed_nodes = [
-            nodes.pop(0)
-            for _ in range(int(value))
-        ]
+        needed_nodes = [nodes.pop(0) for _ in range(int(value))]
 
         while needed_nodes:
             node = needed_nodes[0]
-            if node[1] == 'm':
+            if node[1] == "m":
                 sub_cluster = self.to_cluster(needed_nodes)
                 cluster.append(sub_cluster)
             else:
@@ -70,7 +85,7 @@ class Protobuf:
 
         while nodes:
             node = nodes[0]
-            if node[1] == 'm':
+            if node[1] == "m":
                 cluster = self.to_cluster(nodes)
                 self.root.append(cluster)
             else:
@@ -89,7 +104,7 @@ class Protobuf:
         return "".join(node.encode() for node in self.root.nodes)
 
     def _tree_lines(self, node: Cluster, prefix: str) -> List[str]:
-        """Helper method to generate tree lines recursively.
+        """Generate tree lines recursively.
 
         :param node: Cluster node to process
         :param prefix: Current indentation prefix
@@ -112,26 +127,23 @@ class Protobuf:
 
         return result
 
-    def print_tree(self, node=None, prefix="", stdout=True) -> Optional[str]:
-        """Print or return a visual representation of the tree.
-
-        :param node: Starting node (defaults to root)
-        :param prefix: Prefix for tree indentation
-        :param stdout: If True, prints the tree to stdout
-        :return: String representation of the tree if stdout is False,
-            None otherwise
-        """
+    def print_tree(
+        self,
+        cluster: Optional[Cluster] = None,
+        prefix: str = "",
+        stdout: bool = True,
+    ) -> Optional[str]:
+        """Print or return a visual representation of the tree."""
         result = []
-        if node is None:
-            node = self.root
-            result.append(f"{node.index + 1}m{node.total}")
+        if cluster is None:
+            cluster = self.root
+            result.append(f"{cluster.index + 1}m{cluster.total}")
 
-        if isinstance(node, Cluster):
-            result.extend(self._tree_lines(node, prefix))
+        if isinstance(cluster, Cluster):
+            result.extend(self._tree_lines(cluster, prefix))
 
         tree_str = "\n".join(result)
 
         if stdout:
             print(tree_str)
-        else:
-            return tree_str
+        return tree_str

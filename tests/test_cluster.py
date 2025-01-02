@@ -1,7 +1,8 @@
 import unittest
+
 from deproto.cluster import Cluster
 from deproto.node import Node
-from deproto.types import StringType, IntType, BoolType
+from deproto.types import BoolType, IntType, StringType
 
 
 class TestCluster(unittest.TestCase):
@@ -16,9 +17,7 @@ class TestCluster(unittest.TestCase):
         self.assertEqual(self.cluster.total, 1)
 
     def test_nested_cluster(self):
-        nested = Cluster(2, [
-            Node(1, True, BoolType())
-        ])
+        nested = Cluster(2, [Node(1, True, BoolType())])
         self.cluster.append(nested)
         self.assertEqual(self.cluster.total, 2)  # nested cluster + its node
 
@@ -30,9 +29,7 @@ class TestCluster(unittest.TestCase):
         self.assertEqual(self.cluster.total, 1)
 
     def test_parent_child_relationship(self):
-        nested = Cluster(2, [
-            Node(1, True, BoolType())
-        ])
+        nested = Cluster(2, [Node(1, True, BoolType())])
         self.cluster.append(nested)
         self.assertEqual(nested.parent, self.cluster)
         self.assertEqual(nested[1].parent, nested)
@@ -47,22 +44,18 @@ class TestCluster(unittest.TestCase):
         self.assertEqual(self.cluster.total, 3)
 
         # Test nested structure cluster[node, node]
-        self.cluster.add(3, [
-            (1, True, BoolType()),
-            (2, "nested", StringType())
-        ])
+        nodes = [(1, True, BoolType()), (2, "nested", StringType())]
+        self.cluster.add(3, nodes)
         self.assertEqual(self.cluster.total, 6)
 
     def test_encode(self):
         self.cluster.append(self.node1)
-        nested = Cluster(2, [
-            Node(1, 42, IntType())
-        ])
+        nested = Cluster(2, [Node(1, 42, IntType())])
         self.cluster.append(nested)
         encoded = self.cluster.encode()
         self.assertIn("!1stest", encoded)
         self.assertIn("!2m1!1i42", encoded)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

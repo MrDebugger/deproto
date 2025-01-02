@@ -1,17 +1,28 @@
+"""Cluster module.
+
+This module provides the Cluster class for representing a cluster of nodes
+in the protobuf structure.
+"""
+
 from __future__ import annotations
-from typing import List, Union, Optional, Any
+
+from typing import Any, List, Optional, Union
+
 from deproto.node import Node
-from deproto.types import DataTypeFactory, BaseType
+from deproto.types import BaseType, DataTypeFactory
 
 
 class Cluster:
     """Represents a cluster of nodes in the protobuf structure."""
 
+    total: int = 0
+    index: int = 0
+
     def __init__(
         self,
         index: int,
-        nodes: Optional[List[Union[Node, 'Cluster']]] = None,
-        parent: Optional['Cluster'] = None
+        nodes: Optional[List[Union[Node, "Cluster"]]] = None,
+        parent: Optional["Cluster"] = None,
     ):
         """Initialize a cluster.
 
@@ -19,10 +30,10 @@ class Cluster:
         :param nodes: Optional list of nodes/clusters to initialize with
         :param parent: Optional parent cluster
         """
-        self.nodes: List[Union[Node, 'Cluster']] = []
+        self.nodes: List[Union[Node, "Cluster"]] = []
         self.total: int = 0
         self.index: int = index - 1
-        self.parent: Optional['Cluster'] = parent
+        self.parent: Optional["Cluster"] = parent
 
         if nodes:
             for node in nodes:
@@ -40,11 +51,11 @@ class Cluster:
         if self.parent:
             self.parent._decrement_total(amount)
 
-    def set_parent(self, parent: Optional['Cluster']) -> None:
+    def set_parent(self, parent: Optional["Cluster"]) -> None:
         """Set the parent cluster for this cluster."""
         self.parent = parent
 
-    def append(self, item: Union[Node, 'Cluster']) -> None:
+    def append(self, item: Union[Node, "Cluster"]) -> None:
         """Append a node or cluster to this cluster."""
         item.set_parent(self)
         self.nodes.append(item)
@@ -52,10 +63,8 @@ class Cluster:
         self._increment_total(amount)
 
     def find(
-        self,
-        index: int,
-        _raise: bool = False
-    ) -> Optional[Union[Node, 'Cluster']]:
+        self, index: int, _raise: bool = False
+    ) -> Optional[Union[Node, "Cluster"]]:
         """Find a node or cluster at a specific index.
 
         :param index: Index of node to find (1-based)
@@ -69,7 +78,7 @@ class Cluster:
             raise IndexError(f"Index {index} not found in cluster")
         return None
 
-    def insert(self, index: int, item: Union[Node, 'Cluster']) -> None:
+    def insert(self, index: int, item: Union[Node, "Cluster"]) -> None:
         """Insert a node or cluster at a specific index position.
 
         :param index: Target index for insertion (1-based)
@@ -85,7 +94,7 @@ class Cluster:
         self.nodes.insert(pos, item)
         self._increment_total()
 
-    def delete(self, index: int) -> Optional[Union[Node, 'Cluster']]:
+    def delete(self, index: int) -> Optional[Union[Node, "Cluster"]]:
         """Delete a node by its index.
 
         :param index: Index of node to delete (1-based)
@@ -109,7 +118,17 @@ class Cluster:
             result += node.encode()
         return result
 
-    def replace(self, index: int, value: Union[Node, 'Cluster']):
+    def replace(
+        self,
+        index: int,
+        value: Union[Node, "Cluster"],
+    ) -> Union[Node, "Cluster"]:
+        """Replace a node at a specific index.
+
+        :param index: Index of node to replace (1-based)
+        :param value: New value for node
+        :return: Replaced node
+        """
         node = self.delete(index)
         self.insert(index, value)
         return node
@@ -164,6 +183,12 @@ class Cluster:
                 node_reprs.append(repr(node))
         return f"Cluster([{', '.join(node_reprs)}])"
 
+    def _fill_missing_nodes(self, nodes: list, index: int) -> None:
+        """Fill missing nodes in the list."""
+        missing_nodes = index - len(nodes)
+        if missing_nodes > 0:
+            nodes.extend([None] * missing_nodes)
+
     def to_json(self) -> list:
         """Convert the cluster to a JSON-serializable dictionary.
 
@@ -172,6 +197,7 @@ class Cluster:
         """
         nodes = []
         for node in self.nodes:
+            self._fill_missing_nodes(nodes, node.index)
             if isinstance(node, Cluster):
                 nodes.append(node.to_json())
             else:
@@ -179,11 +205,8 @@ class Cluster:
         return nodes
 
     def add(
-        self,
-        index: int,
-        value: Any,
-        dtype: Optional[BaseType] = None
-    ) -> Union[Node, 'Cluster']:
+        self, index: int, value: Any, dtype: Optional[BaseType] = None
+    ) -> Union[Node, "Cluster"]:
         """Add a node or cluster in a single line.
 
         Supports multiple formats:

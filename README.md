@@ -374,4 +374,4 @@ Ijaz Ur Rahim ([ijazurrahim.com](https://ijazurrahim.com) | [@MrDebugger](https:
 
 ## Current Version
 
-**0.2.4** - See [CHANGELOG.md](https://github.com/MrDebugger/deproto/blob/main/CHANGELOG.md) for version history and details.
+**0.2.5** - See [CHANGELOG.md](https://github.com/MrDebugger/deproto/blob/main/CHANGELOG.md) for version history and details.

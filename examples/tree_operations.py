@@ -1,5 +1,5 @@
-from deproto import Protobuf, Cluster, Node
-from deproto.types import StringType, IntType
+from deproto import Cluster, Node, Protobuf
+from deproto.types import IntType, StringType
 
 
 def demonstrate_node_operations():
@@ -7,11 +7,14 @@ def demonstrate_node_operations():
     print("====================================")
 
     # Create a sample cluster
-    cluster = Cluster(1, [
-        Node(1, "hello", StringType()),
-        Node(2, 42, IntType()),
-        Node(3, "world", StringType())
-    ])
+    cluster = Cluster(
+        1,
+        [
+            Node(1, "hello", StringType()),
+            Node(2, 42, IntType()),
+            Node(3, "world", StringType()),
+        ],
+    )
 
     # Find a node
     try:
@@ -39,14 +42,17 @@ def demonstrate_tree_serialization():
     print("=========================")
 
     # Create a nested structure
-    root = Cluster(1, [
-        Node(1, "metadata", StringType()),
-        Cluster(2, [
-            Node(1, 42, IntType()),
-            Node(2, "nested", StringType())
-        ]),
-        Node(3, "end", StringType())
-    ])
+    root = Cluster(
+        1,
+        [
+            Node(1, "metadata", StringType()),
+            Cluster(
+                2,
+                [Node(1, 42, IntType()), Node(2, "nested", StringType())],
+            ),
+            Node(3, "end", StringType()),
+        ],
+    )
 
     # Show JSON representation
     json_data = root.to_json()

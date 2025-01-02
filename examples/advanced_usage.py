@@ -1,6 +1,6 @@
 from deproto import Protobuf
-from deproto.node import Node
 from deproto.cluster import Cluster
+from deproto.node import Node
 from deproto.types import DataTypeFactory, StringType
 
 
@@ -28,9 +28,9 @@ def demonstrate_data_types():
     print("------------------")
 
     # Get different type handlers
-    string_type = DataTypeFactory.get_type('s')
-    int_type = DataTypeFactory.get_type('i')
-    float_type = DataTypeFactory.get_type('f')
+    string_type = DataTypeFactory.get_type("s")
+    int_type = DataTypeFactory.get_type("i")
+    float_type = DataTypeFactory.get_type("f")
 
     # Create nodes with different types
     string_node = Node(1, "test", string_type())

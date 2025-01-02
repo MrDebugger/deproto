@@ -21,6 +21,55 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -e ".[dev]"
 ```
 
+4. Set up pre-commit hooks:
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+### Running Pre-commit
+
+Pre-commit can be run in several ways:
+
+1. Automatically on git commit:
+```bash
+git add .
+git commit -m "your message"  # pre-commit will run automatically
+```
+
+2. Manually on all files:
+```bash
+pre-commit run --all-files
+```
+
+3. Manually on specific files:
+```bash
+pre-commit run --files deproto/node.py tests/test_node.py
+```
+
+4. Run specific hooks:
+```bash
+pre-commit run black --all-files  # run only black
+pre-commit run flake8 --all-files  # run only flake8
+```
+
+5. To skip pre-commit hooks temporarily:
+```bash
+git commit -m "your message" --no-verify
+```
+
+The pre-commit hooks will run automatically on `git commit` and check:
+- Code formatting (black)
+- Import sorting (isort)
+- Linting (flake8)
+- Various file checks (trailing whitespace, merge conflicts, etc.)
+
+If any hook fails:
+1. Review the error messages
+2. Files may be automatically reformatted - check the changes
+3. Stage the reformatted files: `git add .`
+4. Try committing again
+
 ## Code Style
 
 - Follow PEP 8 style guidelines

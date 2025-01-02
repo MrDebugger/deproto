@@ -1,7 +1,8 @@
 import unittest
-from deproto.node import Node
+
 from deproto.cluster import Cluster
-from deproto.types import StringType, IntType, BoolType, FloatType
+from deproto.node import Node
+from deproto.types import BoolType, FloatType, IntType, StringType
 
 
 class TestNode(unittest.TestCase):
@@ -32,8 +33,8 @@ class TestNode(unittest.TestCase):
 
     def test_special_characters(self):
         node = Node(1, "test!*", StringType())
-        self.assertIn("*21", node.value_raw)  # ! should be encoded
-        self.assertIn("*2A", node.value_raw)  # * should be encoded
+        self.assertIn("*21", node.value_raw)
+        self.assertIn("*2A", node.value_raw)
 
     def test_type_conversion(self):
         float_node = Node(1, 3.14, FloatType())
@@ -42,5 +43,5 @@ class TestNode(unittest.TestCase):
         self.assertEqual(float_node.value, 2.718)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

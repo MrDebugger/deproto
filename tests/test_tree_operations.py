@@ -1,15 +1,19 @@
 import unittest
-from deproto import Protobuf, Cluster, Node
-from deproto.types import StringType, IntType
+
+from deproto import Cluster, Node, Protobuf
+from deproto.types import IntType, StringType
 
 
 class TestTreeOperations(unittest.TestCase):
     def setUp(self):
-        self.cluster = Cluster(1, [
-            Node(1, "test", StringType()),
-            Node(2, 42, IntType()),
-            Node(3, "end", StringType())
-        ])
+        self.cluster = Cluster(
+            1,
+            [
+                Node(1, "test", StringType()),
+                Node(2, 42, IntType()),
+                Node(3, "end", StringType()),
+            ],
+        )
 
     def test_node_finding(self):
         """Test node finding operations"""
@@ -37,20 +41,20 @@ class TestTreeOperations(unittest.TestCase):
 
 class TestTreeSerialization(unittest.TestCase):
     def setUp(self):
-        self.nested_cluster = Cluster(1, [
-            Node(1, "outer", StringType()),
-            Cluster(2, [
-                Node(1, "inner", StringType())
-            ])
-        ])
+        self.nested_cluster = Cluster(
+            1,
+            [
+                Node(1, "outer", StringType()),
+                Cluster(2, [Node(1, "inner", StringType())]),
+            ],
+        )
 
     def test_json_serialization(self):
         """Test JSON serialization of tree structures"""
         # Test basic structure
-        simple_cluster = Cluster(1, [
-            Node(1, "test", StringType()),
-            Node(2, 42, IntType())
-        ])
+        simple_cluster = Cluster(
+            1, [Node(1, "test", StringType()), Node(2, 42, IntType())]
+        )
         json_data = simple_cluster.to_json()
         self.assertEqual(json_data, ["test", 42])
 
@@ -71,5 +75,5 @@ class TestTreeSerialization(unittest.TestCase):
         self.assertIn("i42", tree_str)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

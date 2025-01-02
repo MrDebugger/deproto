@@ -1,7 +1,7 @@
 from deproto import Protobuf
 from deproto.cluster import Cluster
 from deproto.node import Node
-from deproto.types import StringType, IntType, BoolType
+from deproto.types import BoolType, FloatType, IntType, StringType
 
 
 def demonstrate_building_methods():
@@ -10,12 +10,13 @@ def demonstrate_building_methods():
 
     # Method 1: Direct Node/Cluster Construction
     print("\n1. Direct Construction:")
-    root = Cluster(1, [
-        Node(1, "hello", StringType()),
-        Cluster(2, [
-            Node(1, 42, IntType())
-        ])
-    ])
+    root = Cluster(
+        1,
+        [
+            Node(1, "hello", StringType()),
+            Cluster(2, [Node(1, 42, IntType())]),
+        ],
+    )
     Protobuf("").print_tree(root)
 
     # Method 2: Using add() with tuples
@@ -27,10 +28,7 @@ def demonstrate_building_methods():
     # Method 3: Using add() with nodes
     print("\n3. Using add() with nodes:")
     root = Cluster(1)
-    root.add(1, [
-        Node(1, "hello", StringType()),
-        Node(2, 42, IntType())
-    ])
+    root.add(1, [Node(1, "hello", StringType()), Node(2, 42, IntType())])
     Protobuf("").print_tree(root)
 
     # Method 4: Mixed approach
@@ -46,18 +44,27 @@ def demonstrate_complex_structure():
     print("=========================")
 
     # Building a more complex structure
-    root = Cluster(1, [
-        Node(1, "metadata", StringType()),
-        Cluster(2, [
-            Node(1, 42, IntType()),
-            Node(2, True, BoolType()),
-            Cluster(3, [
-                Node(1, "nested", StringType()),
-                Node(2, 3.14, IntType())
-            ])
-        ]),
-        Node(3, "end", StringType())
-    ])
+    root = Cluster(
+        1,
+        [
+            Node(1, "metadata", StringType()),
+            Cluster(
+                2,
+                [
+                    Node(1, 42, IntType()),
+                    Node(2, True, BoolType()),
+                    Cluster(
+                        3,
+                        [
+                            Node(1, "nested", StringType()),
+                            Node(2, 3.14, FloatType()),
+                        ],
+                    ),
+                ],
+            ),
+            Node(3, "end", StringType()),
+        ],
+    )
 
     Protobuf("").print_tree(root)
     print("\nEncoded:", root.encode())
