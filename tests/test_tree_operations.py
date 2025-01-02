@@ -23,7 +23,11 @@ class TestTreeOperations(unittest.TestCase):
 
         # Test find with invalid index
         with self.assertRaises(IndexError):
-            self.cluster.find(5)
+            self.cluster[5]
+
+        # Test find with invalid index
+        with self.assertRaises(IndexError):
+            self.cluster.find(5, _raise=True)
 
     def test_node_replacement(self):
         """Test node replacement operations"""
