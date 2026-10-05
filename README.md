@@ -39,6 +39,14 @@
   <a href="https://github.com/MrDebugger/deproto#testing">Testing</a>
 </p>
 
+<p align="center">
+  <a href="https://github.com/MrDebugger/deproto/blob/main/assets/videos/deproto-demo.mp4">
+    <img src="https://raw.githubusercontent.com/MrDebugger/deproto/main/assets/videos/deproto-demo.gif" alt="deproto demo: a Google Maps protobuf string decoded into a tree, a value edited, and the string encoded back" width="720"/>
+  </a>
+  <br/>
+  <sub>▶ <a href="https://github.com/MrDebugger/deproto/blob/main/assets/videos/deproto-demo.mp4">Watch the demo with sound (MP4)</a></sub>
+</p>
+
 A Python package for decoding, manipulating, and encoding Google Maps protobuf format strings. This library provides an intuitive way to work with protobuf structures commonly found in Google Maps URLs and data.
 
 ## Features
