@@ -59,11 +59,11 @@ def demonstrate_tree_serialization():
     print("\nJSON representation:")
     print(json_data)
 
-    # Show tree visualization as string
+    # Show tree visualization; print_tree() handles console encoding
+    # (falls back to ASCII connectors when box-drawing chars can't print)
     pb = Protobuf("")
-    tree_str = pb.print_tree(root, stdout=False)
     print("\nTree visualization:")
-    print(tree_str)
+    pb.print_tree(root)
 
 
 def main():

@@ -21,11 +21,46 @@ Main Components:
 """
 
 import re
+import sys
 from typing import List, Optional, Tuple
 
 from deproto.cluster import Cluster
 from deproto.node import Node
 from deproto.types import DataTypeFactory
+
+# Tree connectors as (branch, last branch, vertical continuation).
+UNICODE_CONNECTORS: Tuple[str, str, str] = ("├── ", "└── ", "│   ")
+ASCII_CONNECTORS: Tuple[str, str, str] = ("|-- ", "`-- ", "|   ")
+
+
+def _can_encode(text: str, encoding: Optional[str]) -> bool:
+    """Check whether ``text`` can be encoded with ``encoding``.
+
+    :param text: Text to check
+    :param encoding: Target encoding; ``None`` means the stream accepts
+        any ``str`` (e.g. ``io.StringIO``)
+    :return: True if the text can be encoded, False otherwise
+    """
+    if not encoding:
+        return True
+    try:
+        text.encode(encoding)
+    except (UnicodeEncodeError, LookupError):
+        return False
+    return True
+
+
+def _replace_unencodable(text: str, encoding: str) -> str:
+    """Replace characters that ``encoding`` cannot represent with '?'.
+
+    :param text: Text to sanitize
+    :param encoding: Target encoding; unknown encodings fall back to ASCII
+    :return: Text that can be safely encoded with ``encoding``
+    """
+    try:
+        return text.encode(encoding, "replace").decode(encoding)
+    except LookupError:
+        return text.encode("ascii", "replace").decode("ascii")
 
 
 class Protobuf:
@@ -103,29 +138,59 @@ class Protobuf:
             return ""
         return "".join(node.encode() for node in self.root.nodes)
 
-    def _tree_lines(self, node: Cluster, prefix: str) -> List[str]:
+    def _tree_lines(
+        self,
+        node: Cluster,
+        prefix: str,
+        connectors: Tuple[str, str, str] = UNICODE_CONNECTORS,
+    ) -> List[str]:
         """Generate tree lines recursively.
 
         :param node: Cluster node to process
         :param prefix: Current indentation prefix
+        :param connectors: (branch, last branch, vertical) connector strings
         :return: List of formatted tree lines
         """
+        branch, last_branch, vertical = connectors
         result = []
         for i, child in enumerate(node.nodes):
             is_last = i == len(node.nodes) - 1
-            connector = "└── " if is_last else "├── "
+            connector = last_branch if is_last else branch
             line = f"{prefix}{connector}{child.index + 1}"
 
             if isinstance(child, Cluster):
                 line += f"m{child.total}"
                 result.append(line)
-                new_prefix = prefix + ("    " if is_last else "│   ")
-                result.extend(self._tree_lines(child, new_prefix))
+                new_prefix = prefix + ("    " if is_last else vertical)
+                result.extend(self._tree_lines(child, new_prefix, connectors))
             else:
                 line += f"{child.type}{child.value_raw}"
                 result.append(line)
 
         return result
+
+    def _format_tree(
+        self,
+        cluster: Optional[Cluster],
+        prefix: str,
+        connectors: Tuple[str, str, str],
+    ) -> str:
+        """Build the tree string using the given connectors.
+
+        :param cluster: Cluster to render, or None for the root
+        :param prefix: Initial indentation prefix
+        :param connectors: (branch, last branch, vertical) connector strings
+        :return: Tree representation as a string
+        """
+        result = []
+        if cluster is None:
+            cluster = self.root
+            result.append(f"{cluster.index + 1}m{cluster.total}")
+
+        if isinstance(cluster, Cluster):
+            result.extend(self._tree_lines(cluster, prefix, connectors))
+
+        return "\n".join(result)
 
     def print_tree(
         self,
@@ -133,17 +198,26 @@ class Protobuf:
         prefix: str = "",
         stdout: bool = True,
     ) -> Optional[str]:
-        """Print or return a visual representation of the tree."""
-        result = []
-        if cluster is None:
-            cluster = self.root
-            result.append(f"{cluster.index + 1}m{cluster.total}")
+        """Print or return a visual representation of the tree.
 
-        if isinstance(cluster, Cluster):
-            result.extend(self._tree_lines(cluster, prefix))
+        The returned string always uses Unicode box-drawing connectors. When
+        printing, if ``sys.stdout`` cannot encode them (e.g. a cp1252 Windows
+        console), ASCII connectors are printed instead, and any remaining
+        unencodable characters are replaced rather than raising.
 
-        tree_str = "\n".join(result)
+        :param cluster: Cluster to render, or None for the root
+        :param prefix: Initial indentation prefix
+        :param stdout: Whether to print the tree to ``sys.stdout``
+        :return: Tree representation with Unicode connectors
+        """
+        tree_str = self._format_tree(cluster, prefix, UNICODE_CONNECTORS)
 
         if stdout:
-            print(tree_str)
+            encoding = getattr(sys.stdout, "encoding", None)
+            output = tree_str
+            if not _can_encode(output, encoding):
+                output = self._format_tree(cluster, prefix, ASCII_CONNECTORS)
+            if not _can_encode(output, encoding):
+                output = _replace_unencodable(output, encoding)
+            print(output)
         return tree_str
