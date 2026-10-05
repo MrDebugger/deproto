@@ -69,3 +69,5 @@ local_settings.py
 # Keep asset directories
 !assets/icons/.gitkeep
 !assets/images/.gitkeep
+
+posts/*
